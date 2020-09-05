@@ -70,7 +70,7 @@ func (c *client) receiveWorker() {
 		select {
 		case rm := <-readMessageChan:
 			NoError(rm.err)
-			go c.srv.onReceiveNewMessage(c, c.handleReceivedMessage(rm.p))
+			c.srv.onReceiveNewMessage(c, c.handleReceivedMessage(rm.p))
 		case <-c.c.Done():
 			return
 		}
