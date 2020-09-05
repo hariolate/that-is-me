@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
 	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"log"
 	"time"
@@ -28,7 +28,7 @@ type client struct {
 func (c *client) sendMessage(t protocol.Wrapper_MessageType, m proto.Message) {
 	wrappedMessage := &protocol.Wrapper{
 		Type:    t,
-		Message: MustMarshalAnyProto(m),
+		Message: MustMarshalProto(m),
 	}
 	c.toSendChan <- wrappedMessage
 }
