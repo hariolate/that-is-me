@@ -18,6 +18,28 @@ type object struct {
 	pos      position
 }
 
+func clamp(v, lo, hi int64) int64 {
+	if v < lo {
+		return lo
+	}
+	if v > hi {
+		return hi
+	}
+	return v
+}
+func (o *object) randomlyMove() {
+	move_x := rand.Int63() % canvasWeight
+	move_y := rand.Int63() % canvasHeight
+
+	x := int64(o.pos.x) + move_x
+	y := int64(o.pos.y) + move_y
+
+	x = clamp(x, 0, canvasWeight)
+	y = clamp(x, 0, canvasHeight)
+
+	o.pos = position{uint32(x), uint32(y)}
+}
+
 type match struct {
 	a, b *client
 	fsm  fsm.FSM
@@ -273,6 +295,9 @@ func (m *match) gameWorker() {
 			if len(m.objects) == 1 {
 				m.gameWin = true
 				return
+			}
+			for _, obj := range m.objects {
+				obj.randomlyMove()
 			}
 			m.sendObjectsLocationUpdateEvent()
 		}
