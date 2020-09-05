@@ -3,6 +3,7 @@ WORKDIR /app
 COPY ./ /app
 RUN go get -v ./...
 RUN go get github.com/githubnemo/CompileDaemon
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt update; apt install -y nodejs protobuf-compiler npm
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go
 ENTRYPOINT CompileDaemon \
