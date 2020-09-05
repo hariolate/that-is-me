@@ -34,22 +34,32 @@
         data() {
             return {
                 logoImg: common.logoStatic,
-                title: "00:35",
+                title: "00:30",
+                timeout: 30,
                 msg: "",
                 inMsg: "",
             }
         },
         mounted() {
-            if (!(this.global.status === 2)) {
-                this.$router.push('/');
-                this.$router.go(0);
-            }
+            // if (!(this.global.status === 2)) {
+            //     this.$router.push('/');
+            //     this.$router.go(0);
+            // }
             window.blur();
             this.fixLayout();
             window.onload = this.fixLayout;
             window.onresize = this.fixLayout;
             window.onkeydown = this.keyInput;
             setInterval(this.twinkle, 50);
+            const that = this;
+            setInterval(() => {
+                that.timeout--;
+                that.title = "00:" + ('0' + that.timeout).slice(-2);
+                if (that.timeout === 0) {
+                    that.$router.push("/");
+                    that.$router.go(0);
+                }
+            }, 1000);
         },
         methods: {
             fixLayout() {
@@ -71,6 +81,9 @@
                 if (evt.code === "Enter") {
                     if (this.inMsg.length > 0) {
                         this.msg += "A: " + this.inMsg + "\n";
+                        const that = this;
+                        const k = this.inMsg;
+                        setTimeout(()=>{that.msg += "B: " + k + '\n'}, Math.random()*5000);
                         this.inMsg = "";
                         const m = document.querySelector("#message");
                         m.scrollTop = m.scrollHeight;

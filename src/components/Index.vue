@@ -117,6 +117,9 @@
                         this.title = "Enter 2 Enter";
                         this.matchmaking = false;
                     }
+                } else if (evt.code === "Enter" && this.matchmaking) {
+                    this.$router.push("/game");
+                    this.$router.go(0);
                 }
             },
             blur() {
