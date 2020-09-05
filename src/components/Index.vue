@@ -82,7 +82,6 @@
     }
 
     #view {
-        background: white;
         margin-left: 50%;
         margin-top: 20vh;
         transform: translateX(-50%);

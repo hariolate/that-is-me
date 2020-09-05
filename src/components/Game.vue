@@ -44,6 +44,7 @@
                 v.style.height = this.length + "px";
                 c.width = this.length;
                 c.height = this.length;
+                v.style.visibility = "visible";
             },
             animate() {
                 const t = document.querySelector("#title");
@@ -54,7 +55,10 @@
                 this.ctx.fillRect(0, 0, this.length, this.length);
             },
             keyInput(evt) {
-                alert(evt.code);
+                if (evt.code === "Enter") {
+                    this.$router.push("/chat");
+                    this.$router.go(0);
+                }
             },
         }
     }
@@ -82,6 +86,7 @@
     }
 
     #view {
+        visibility: hidden;
         margin-left: 50%;
         transform: translateX(-50%);
     }
