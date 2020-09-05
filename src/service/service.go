@@ -21,7 +21,7 @@ type Service struct {
 	availableForMatch chan *client
 }
 
-func FromConfig(ctx context.Context) *Service {
+func FromConfig(conf *Config, ctx context.Context) *Service {
 	return &Service{
 		id: uuid.New(),
 
