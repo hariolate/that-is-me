@@ -8,9 +8,9 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
   go_package: ".;protocol"
 })
 .addJSON({
-  UserATapEvent: {
+  UserAKillEvent: {
     fields: {
-      object: {
+      objectId: {
         type: "uint32",
         id: 1
       }
@@ -28,10 +28,30 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       }
     }
   },
+  Object: {
+    fields: {
+      position: {
+        type: "Position",
+        id: 1
+      },
+      objectId: {
+        type: "uint32",
+        id: 2
+      }
+    }
+  },
   UserBMoveEvent: {
     fields: {
       to: {
         type: "Position",
+        id: 1
+      }
+    }
+  },
+  UserBInitEvent: {
+    fields: {
+      thatObjectIsMe: {
+        type: "uint32",
         id: 1
       }
     }
@@ -100,6 +120,35 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       }
     }
   },
+  UpdateObjectsLocationEvent: {
+    fields: {
+      objects: {
+        rule: "repeated",
+        type: "Object",
+        id: 1
+      }
+    }
+  },
+  MatchStateChangeEvent: {
+    fields: {
+      type: {
+        type: "Type",
+        id: 1
+      }
+    },
+    nested: {
+      Type: {
+        values: {
+          Ready: 0,
+          GameBegin: 1,
+          GameEnd: 2,
+          Exit: 3,
+          EnterChat: 4,
+          ExitChat: 5
+        }
+      }
+    }
+  },
   MatchMakingRequest: {
     fields: {
       type: {
@@ -146,17 +195,29 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
         type: "uint32",
         id: 1
       },
+      sender: {
+        type: "Sender",
+        id: 2
+      },
       raw: {
         type: "RawMessage",
-        id: 2
+        id: 3
       },
       timestamp: {
         type: "google.protobuf.Timestamp",
-        id: 3
+        id: 4
       },
       timeRemaining: {
         type: "google.protobuf.Timestamp",
-        id: 4
+        id: 5
+      }
+    },
+    nested: {
+      Sender: {
+        values: {
+          A: 0,
+          B: 1
+        }
       }
     }
   },

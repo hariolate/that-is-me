@@ -9,8 +9,13 @@ message RawMessage{
 }
 
 message Message{
+  enum Sender{
+    A = 0;
+    B = 1;
+  }
   uint32 uid = 1;
-  RawMessage raw = 2;
-  google.protobuf.Timestamp timestamp = 3;
-  google.protobuf.Timestamp time_remaining = 4;
+  Sender sender = 2;
+  RawMessage raw = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  google.protobuf.Timestamp time_remaining = 5;
 }
