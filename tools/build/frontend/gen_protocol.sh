@@ -12,5 +12,5 @@ project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" >/dev/null 2>&1 &&
 #    echo '/* eslint-disable */' | cat - "${f}" > temp && mv temp "${f}"
 #done
 
-npx pbjs --version
+cd ${project_root}
 npx pbjs -t json-module -w commonjs -o "${project_root}"/src/protocol/protocol.js "${project_root}"/src/protocol/*.proto
