@@ -26,6 +26,7 @@ type client struct {
 }
 
 func (c *client) sendMessage(t protocol.Wrapper_MessageType, m proto.Message) {
+	log.Printf("client %d: to send: %s", c.id, m)
 	wrappedMessage := &protocol.Wrapper{
 		Type:    t,
 		Message: MustMarshalProto(m),
