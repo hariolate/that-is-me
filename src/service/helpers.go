@@ -50,8 +50,8 @@ func ServeAddrFromConfig(c *Config) string {
 	return addr + ":" + port
 }
 
-func MustMarshalProto(obj interface{}) []byte {
-	data, err := proto.Marshal(obj.(proto.Message))
+func MustMarshalProto(obj proto.Message) []byte {
+	data, err := proto.Marshal(obj)
 	NoError(err)
 	return data
 }
