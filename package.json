@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "../gin-websocket/node_modules/.bin/vue-cli-service serve",
-    "build": "../gin-websocket/node_modules/.bin/vue-cli-service build",
-    "lint": "../gin-websocket/node_modules/.bin/vue-cli-service lint"
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "axios": "^0.20.0",
