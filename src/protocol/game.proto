@@ -2,8 +2,8 @@ syntax = "proto3";
 
 option go_package = ".;protocol";
 
-message UserATapEvent{
-  uint32 object = 1;
+message UserAKillEvent{
+  uint32 object_id = 1;
 }
 
 message Position{
@@ -11,8 +11,17 @@ message Position{
   uint32 y = 2;
 }
 
+message Object{
+  Position position = 1;
+  uint32 object_id = 2;
+}
+
 message UserBMoveEvent{
   Position to = 1;
+}
+
+message UserBInitEvent{
+  uint32 that_object_is_me = 1;
 }
 
 message GameStateChangeEvent{
@@ -47,4 +56,18 @@ message ChatSessionEvent{
   Type type = 1;
 }
 
+message UpdateObjectsLocationEvent{
+  repeated Object objects = 1;
+}
 
+message MatchStateChangeEvent{
+  enum Type{
+    Ready = 0;
+    GameBegin = 1;
+    GameEnd = 2;
+    Exit = 3;
+    EnterChat = 4;
+    ExitChat = 5;
+  }
+  Type type = 1;
+}
