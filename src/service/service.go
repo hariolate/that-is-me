@@ -136,6 +136,7 @@ func (s *Service) matchMakingWorker() {
 		case <-s.c.Done():
 			return
 		case cli := <-s.availableForMatch:
+			log.Printf("client %d avalable for match making", cli.id)
 			if a == nil {
 				a = cli
 				continue
@@ -146,11 +147,14 @@ func (s *Service) matchMakingWorker() {
 			}
 
 			s.newMatch(a, b)
+			a = nil
+			b = nil
 		}
 	}
 }
 
 func (s *Service) newMatch(a, b *client) {
+	log.Printf("creating new match for client %d and %d", a.id, b.id)
 	if a.availableForMatch && b.availableForMatch {
 		newMatch(a, b)
 	} else {
