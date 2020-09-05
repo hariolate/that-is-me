@@ -116,7 +116,7 @@ func (s *Service) handleMatchMakingRequest(a *client, any *any.Any) {
 	var matchMakingRequest protocol.MatchMakingRequest
 	MustUnmarshalAnyProto(any, &matchMakingRequest)
 	requestType := matchMakingRequest.Type
-	log.Printf("client %d: match making request: %s", a.id, matchMakingRequest.String())
+	log.Printf("client %d: match making request: %s", a.id, matchMakingRequest.Type)
 	switch requestType {
 	case protocol.MatchMakingRequest_Begin:
 		s.availableForMatch <- a
