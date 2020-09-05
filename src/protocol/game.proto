@@ -2,10 +2,6 @@ syntax = "proto3";
 
 option go_package = ".;protocol";
 
-message UserAKillEvent{
-  uint32 object_id = 1;
-}
-
 message Position{
   uint32 x = 1;
   uint32 y = 2;
@@ -16,58 +12,33 @@ message Object{
   uint32 object_id = 2;
 }
 
+message UserAKillEvent{
+  uint32 object_id = 1;
+}
+
 message UserBMoveEvent{
   Position to = 1;
 }
 
+message UserAInitEvent{
+  repeated Object objects = 1;
+}
+
 message UserBInitEvent{
-  uint32 that_object_is_me = 1;
+  repeated Object objects = 1;
+  uint32 that_object_is_me = 2;
 }
 
-message GameStateChangeEvent{
-  enum Type{
-    Ready = 0;
-    End = 1;
-  }
-  Type type = 1;
-}
+message ClientReadyEvent{}
 
-message ClientMatchStatusRequest{
-  enum Type{
-    Ready = 0;
-    End = 1;
-  }
-  Type type = 1;
+message ObjectsLocationUpdateEvent{
+  repeated Object objects = 1;
 }
 
 message GameResultEvent{
   enum Type{
     Success = 0;
     Failure = 1;
-  }
-  Type type = 1;
-}
-
-message ChatSessionEvent{
-  enum Type{
-    Begin = 0;
-    End = 1;
-  }
-  Type type = 1;
-}
-
-message UpdateObjectsLocationEvent{
-  repeated Object objects = 1;
-}
-
-message MatchStateChangeEvent{
-  enum Type{
-    Ready = 0;
-    GameBegin = 1;
-    GameEnd = 2;
-    Exit = 3;
-    EnterChat = 4;
-    ExitChat = 5;
   }
   Type type = 1;
 }

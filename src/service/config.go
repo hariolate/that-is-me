@@ -1,5 +1,14 @@
 package service
 
+import "time"
+
+const (
+	writeWait      = 10 * time.Second
+	pongWait       = 60 * time.Second
+	pingPeriod     = (pongWait * 9) / 10
+	maxMessageSize = 512
+)
+
 type Config struct {
 	Storage struct {
 		RedisURL string `json:"redis_url"`

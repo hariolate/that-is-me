@@ -2,9 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/gorilla/websocket"
 	"gtihub.com/gin-websocket/src/protocol"
 	"log"
@@ -15,38 +13,30 @@ type client struct {
 	conn *websocket.Conn
 	srv  *Service
 
-	id        uint32
+	id        uint64
 	firstPong bool
 
-	toSendChan chan *protocol.Message
+	toSendChan chan *protocol.Wrapper
 
 	c          context.Context
 	cancelFunc context.CancelFunc
+
+	availableForMatch bool
+	match             *match
 }
 
-func (c *client) redisTimeoutKey() string {
-	return fmt.Sprintf("client:%d:timeout", c.id)
+func (c *client) sendMessage(t protocol.Wrapper_MessageType, m proto.Message) {
+	wrappedMessage := &protocol.Wrapper{
+		Type:    t,
+		Message: MustMarshalAnyProto(m),
+	}
+	c.toSendChan <- wrappedMessage
 }
-
-//const clientTimeout = time.Minute * 2
 
 func (c *client) setupWorkers() {
-	//go c.timeoutWorker()
-	//go c.pingWorker()
 	go c.receiveWorker()
 	go c.sendWorker()
 }
-
-//func (c *client) timeoutWorker() {
-//	NoError(c.srv.r.Set(c.srv.c, c.redisTimeoutKey(), 1, clientTimeout).Err())
-//
-//	for {
-//		if c.srv.r.Get(c.srv.c, c.redisTimeoutKey()).Err() != nil {
-//			_ = c.conn.Close()
-//			break
-//		}
-//	}
-//}
 
 func (c *client) receiveWorker() {
 	type readMessageStruct struct {
@@ -80,74 +70,18 @@ func (c *client) receiveWorker() {
 		select {
 		case rm := <-readMessageChan:
 			NoError(rm.err)
-			go c.srv.onNewMessage(c.handleNewMessage(rm.messageType, rm.p))
+			go c.srv.onReceiveNewMessage(c, c.handleReceivedMessage(rm.p))
 		case <-c.c.Done():
 			return
 		}
 	}
 }
 
-func (c *client) handleNewMessage(messageType int, data []byte) *protocol.Message {
-	//if messageType == websocket.PingMessage {
-	//	c.handlePing()
-	//	return nil
-	//}
-
-	//var raw RawMessage
-	//NoError(json.Unmarshal(data, &raw))
-
-	var raw protocol.RawMessage
-	NoError(proto.Unmarshal(data, &raw))
-	//if messageType != websocket.TextMessage {
-	//	raw.Message = "--unsupported message--"
-	//}
-
-	//return &Message{
-	//	UID:       c.id,
-	//	Raw:       raw,
-	//	Timestamp: time.Now(),
-	//}
-
-	now, err := ptypes.TimestampProto(time.Now())
-	NoError(err)
-
-	return &protocol.Message{
-		Uid:       c.id,
-		Raw:       &raw,
-		Timestamp: now,
-	}
+func (c *client) handleReceivedMessage(data []byte) *protocol.Wrapper {
+	var wrappedMessage protocol.Wrapper
+	NoError(proto.Unmarshal(data, &wrappedMessage))
+	return &wrappedMessage
 }
-
-//func (c *client) handlePing() {
-//	writer, err := c.conn.NextWriter(websocket.PongMessage)
-//	NoError(err)
-//	_, err = writer.Write([]byte("pong"))
-//	NoError(err)
-//
-//	NoError(c.srv.r.Set(c.srv.c, c.redisTimeoutKey(), 1, clientTimeout).Err())
-//
-//	if c.firstPong {
-//		go c.sendMessages(c.srv.getAllHistoryMessages())
-//		c.firstPong = false
-//	}
-//}
-
-//func (c *client) pingWorker() {
-//	ticker := time.NewTicker(pingPeriod)
-//	defer func() {
-//		ticker.Stop()
-//		c.srv.removeClient(c)
-//		_ = c.conn.Close()
-//	}()
-//
-//
-//
-//	for {
-//		<-ticker.C
-//		NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
-//		NoError(c.conn.WriteMessage(websocket.PingMessage, nil))
-//	}
-//}
 
 func (c *client) sendWorker() {
 	ticker := time.NewTicker(pingPeriod)
@@ -162,7 +96,6 @@ func (c *client) sendWorker() {
 
 	c.conn.SetPongHandler(func(string) error {
 		if c.firstPong {
-			go c.sendAllHistoryMessages()
 			c.firstPong = false
 		}
 		NoError(c.conn.SetReadDeadline(time.Now().Add(pongWait)))
@@ -188,27 +121,6 @@ func (c *client) sendWorker() {
 	}
 }
 
-func (c *client) sendMessage(m *protocol.Message) {
-	//defer func() {
-	//	if r := recover(); r != nil {
-	//		log.Printf("client %d crashed: %s\n", c.id, r)
-	//		c.srv.removeClient(c)
-	//		_ = c.conn.Close()
-	//	}
-	//}()
-	//data, err := proto.Marshal(m)
-	//NoError(err)
-	//NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
-	//NoError(c.conn.WriteMessage(websocket.BinaryMessage, data))
+func (c *client) sendWrappedMessage(m *protocol.Wrapper) {
 	c.toSendChan <- m
-}
-
-func (c *client) sendMessages(ms []*protocol.Message) {
-	for _, m := range ms {
-		go c.sendMessage(m)
-	}
-}
-
-func (c *client) sendAllHistoryMessages() {
-	c.sendMessages(c.srv.getAllHistoryMessages())
 }

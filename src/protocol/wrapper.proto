@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = ".;protocol";
+
+import "google/protobuf/any.proto";
+
+message Wrapper{
+  enum MessageType{
+    MatchMakingRequest = 0;
+    MatchMakingResponse = 1;
+    MatchStateChangeEvent = 2;
+    UserAKillEvent = 3;
+    UserBMoveEvent = 4;
+    UserAInitEvent = 5;
+    UserBInitEvent = 6;
+    ClientReadyEvent = 7;
+    ObjectsLocationUpdateEvent = 8;
+    GameResultEvent = 9;
+    RawChatMessageEvent = 10;
+    NewMessageEvent = 11;
+  }
+  MessageType type = 1;
+  google.protobuf.Any message = 2;
+}

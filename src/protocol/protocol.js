@@ -8,11 +8,39 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
   go_package: ".;protocol"
 })
 .addJSON({
-  UserAKillEvent: {
+  RawChatMessageEvent: {
     fields: {
-      objectId: {
-        type: "uint32",
+      message: {
+        type: "string",
         id: 1
+      }
+    }
+  },
+  NewMessageEvent: {
+    fields: {
+      sender: {
+        type: "Sender",
+        id: 2
+      },
+      raw: {
+        type: "RawChatMessageEvent",
+        id: 3
+      },
+      timestamp: {
+        type: "google.protobuf.Timestamp",
+        id: 4
+      },
+      timeRemaining: {
+        type: "int64",
+        id: 5
+      }
+    },
+    nested: {
+      Sender: {
+        values: {
+          A: 0,
+          B: 1
+        }
       }
     }
   },
@@ -40,6 +68,14 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       }
     }
   },
+  UserAKillEvent: {
+    fields: {
+      objectId: {
+        type: "uint32",
+        id: 1
+      }
+    }
+  },
   UserBMoveEvent: {
     fields: {
       to: {
@@ -48,43 +84,37 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       }
     }
   },
+  UserAInitEvent: {
+    fields: {
+      objects: {
+        rule: "repeated",
+        type: "Object",
+        id: 1
+      }
+    }
+  },
   UserBInitEvent: {
     fields: {
+      objects: {
+        rule: "repeated",
+        type: "Object",
+        id: 1
+      },
       thatObjectIsMe: {
         type: "uint32",
-        id: 1
+        id: 2
       }
     }
   },
-  GameStateChangeEvent: {
-    fields: {
-      type: {
-        type: "Type",
-        id: 1
-      }
-    },
-    nested: {
-      Type: {
-        values: {
-          Ready: 0,
-          End: 1
-        }
-      }
-    }
+  ClientReadyEvent: {
+    fields: {}
   },
-  ClientMatchStatusRequest: {
+  ObjectsLocationUpdateEvent: {
     fields: {
-      type: {
-        type: "Type",
+      objects: {
+        rule: "repeated",
+        type: "Object",
         id: 1
-      }
-    },
-    nested: {
-      Type: {
-        values: {
-          Ready: 0,
-          End: 1
-        }
       }
     }
   },
@@ -104,7 +134,7 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       }
     }
   },
-  ChatSessionEvent: {
+  MatchMakingRequest: {
     fields: {
       type: {
         type: "Type",
@@ -115,17 +145,36 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       Type: {
         values: {
           Begin: 0,
-          End: 1
+          Cancel: 1,
+          Accept: 2,
+          NotAccept: 3
         }
       }
     }
   },
-  UpdateObjectsLocationEvent: {
+  MatchMakingResponse: {
     fields: {
-      objects: {
-        rule: "repeated",
-        type: "Object",
+      type: {
+        type: "Type",
         id: 1
+      },
+      role: {
+        type: "Role",
+        id: 2
+      }
+    },
+    nested: {
+      Type: {
+        values: {
+          Available: 0,
+          NotAvailable: 1
+        }
+      },
+      Role: {
+        values: {
+          A: 0,
+          B: 1
+        }
       }
     }
   },
@@ -139,84 +188,46 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
     nested: {
       Type: {
         values: {
-          Ready: 0,
-          GameBegin: 1,
-          GameEnd: 2,
-          Exit: 3,
-          EnterChat: 4,
-          ExitChat: 5
+          MatchPending: 0,
+          MatchAccepted: 1,
+          GameReady: 2,
+          GameBegin: 3,
+          GameEnd: 4,
+          ChatPending: 5,
+          ChatReady: 6,
+          ChatBegin: 7,
+          ChatEnd: 8,
+          MatchExit: 9
         }
       }
     }
   },
-  MatchMakingRequest: {
+  Wrapper: {
     fields: {
       type: {
-        type: "Type",
+        type: "MessageType",
         id: 1
-      }
-    },
-    nested: {
-      Type: {
-        values: {
-          Begin: 0,
-          Cancel: 1
-        }
-      }
-    }
-  },
-  MatchMakingResponse: {
-    fields: {
-      type: {
-        type: "Type",
-        id: 1
-      }
-    },
-    nested: {
-      Type: {
-        values: {
-          Ready: 0,
-          NotAvailable: 1
-        }
-      }
-    }
-  },
-  RawMessage: {
-    fields: {
+      },
       message: {
-        type: "string",
-        id: 1
-      }
-    }
-  },
-  Message: {
-    fields: {
-      uid: {
-        type: "uint32",
-        id: 1
-      },
-      sender: {
-        type: "Sender",
+        type: "google.protobuf.Any",
         id: 2
-      },
-      raw: {
-        type: "RawMessage",
-        id: 3
-      },
-      timestamp: {
-        type: "google.protobuf.Timestamp",
-        id: 4
-      },
-      timeRemaining: {
-        type: "google.protobuf.Timestamp",
-        id: 5
       }
     },
     nested: {
-      Sender: {
+      MessageType: {
         values: {
-          A: 0,
-          B: 1
+          MatchMakingRequest: 0,
+          MatchMakingResponse: 1,
+          MatchStateChangeEvent: 2,
+          UserAKillEvent: 3,
+          UserBMoveEvent: 4,
+          UserAInitEvent: 5,
+          UserBInitEvent: 6,
+          ClientReadyEvent: 7,
+          ObjectsLocationUpdateEvent: 8,
+          GameResultEvent: 9,
+          RawChatMessageEvent: 10,
+          NewMessageEvent: 11
         }
       }
     }
@@ -233,6 +244,18 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
               },
               nanos: {
                 type: "int32",
+                id: 2
+              }
+            }
+          },
+          Any: {
+            fields: {
+              type_url: {
+                type: "string",
+                id: 1
+              },
+              value: {
+                type: "bytes",
                 id: 2
               }
             }

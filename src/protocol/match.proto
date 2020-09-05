@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option go_package = ".;protocol";
+
+message MatchMakingRequest{
+  enum Type{
+    Begin = 0;
+    Cancel =1;
+    Accept = 2;
+    NotAccept = 3;
+  }
+
+  Type type = 1;
+}
+
+message MatchMakingResponse{
+  enum Type{
+    Available = 0;
+    NotAvailable = 1;
+  }
+  enum Role{
+    A = 0;
+    B = 1;
+  }
+  Type type = 1;
+  Role role = 2;
+}
+
+message MatchStateChangeEvent{
+  enum Type{
+    MatchPending = 0;
+    MatchAccepted = 1;
+    GameReady = 2;
+    GameBegin = 3;
+    GameEnd = 4;
+    ChatPending = 5;
+    ChatReady = 6;
+    ChatBegin = 7;
+    ChatEnd = 8;
+    MatchExit = 9;
+  }
+  Type type = 1;
+}
+
