@@ -31,6 +31,7 @@ func (c *client) sendMessage(t protocol.Wrapper_MessageType, m proto.Message) {
 		Type:    t,
 		Message: MustMarshalProto(m),
 	}
+	log.Printf("client %d: to send wrapped: %s", c.id, m)
 	c.toSendChan <- wrappedMessage
 }
 
@@ -116,7 +117,7 @@ func (c *client) sendWorker() {
 			NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
 			NoError(c.conn.WriteMessage(websocket.PingMessage, nil))
 		case toSend := <-c.toSendChan:
-			log.Printf("client %d: send %s", c.id, toSend.String())
+			log.Printf("client %d: actually send %s", c.id, toSend)
 			data, err := proto.Marshal(toSend)
 			NoError(err)
 			NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
