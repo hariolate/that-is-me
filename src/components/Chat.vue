@@ -67,7 +67,8 @@
                     if (this.inMsg.length > 0) {
                         this.msg += "A: " + this.inMsg + "\n";
                         this.inMsg = "";
-                        document.querySelector("#textarea").setSelectionRange(0, 0);
+                        const m = document.querySelector("#message");
+                        m.scrollTop = m.scrollHeight;
                     }
                 }
             }

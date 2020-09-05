@@ -158,7 +158,12 @@
                     this.player.y * this.length);
             },
             keyInput(evt) {
-                this.player.Key(evt.code);
+                if (evt.code === "Enter") {
+                    this.$router.push("/chat");
+                    this.$router.go(0);
+                } else {
+                    this.player.Key(evt.code);
+                }
             },
             keyOut() {
                 this.player.Key(null);
