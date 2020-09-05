@@ -130,15 +130,24 @@
                 title: "Cat 00:41",
                 length: 0,
                 ctx: null,
+                NPC: [],
+                pressed: false,
+                NPCdir: [],
             }
         },
         mounted() {
-            if (!(this.global.status === 1) || this.global.role === -1) {
-                this.$router.push("/");
-                this.$router.go(0);
-            }
+            // if (!(this.global.status === 1) || this.global.role === -1) {
+            //     this.$router.push("/");
+            //     this.$router.go(0);
+            // }
             this.$bvModal.show("round");
             this.fixLayout();
+            const cs = new Sprite(common.sprite.cat02);
+            for (let i=0; i<5; i++) {
+                this.NPC.push(new Player(cs));
+                this.NPC[i].x = Math.random() * 0.5 + 0.3;
+                this.NPC[i].y = Math.random() * 0.5 + 0.3;
+            }
             window.onload = this.fixLayout;
             window.onresize = this.fixLayout;
             window.onkeydown = this.keyInput;
@@ -172,6 +181,12 @@
                     this.player.Img(),
                     this.player.x * this.length,
                     this.player.y * this.length);
+                for (let i=0; i<5; i++) {
+                    this.ctx.drawImage(
+                        this.NPC[i].Img(),
+                        this.NPC[i].x * this.length,
+                        this.NPC[i].y * this.length);
+                }
             },
             keyInput(evt) {
                 if (evt.code === "Enter") {
@@ -179,10 +194,32 @@
                     this.$router.go(0);
                 } else {
                     this.player.Key(evt.code);
+                    if (!this.pressed) {
+                        this.pressed = true;
+                        this.NPCdir = [];
+                        for (let i=0; i<5; i++) {
+                            const r = Math.floor(Math.random()*4);
+                            if (r===0) this.NPCdir.push("KeyW");
+                            if (r===1) this.NPCdir.push("KeyA");
+                            if (r===2) this.NPCdir.push("KeyS");
+                            if (r===3) this.NPCdir.push("KeyD");
+                        }
+                    } else {
+                        this.keyNPC();
+                    }
                 }
             },
             keyOut() {
                 this.player.Key(null);
+                for (let i=0; i<5; i++) {
+                    this.NPC[i].Key(null);
+                }
+                this.pressed = false;
+            },
+            keyNPC() {
+                for (let i=0; i<5; i++) {
+                    this.NPC[i].Key(this.NPCdir[i]);
+                }
             }
         }
     }

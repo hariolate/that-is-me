@@ -63,13 +63,13 @@
                 if (wrp.type === 1) {
                     const mrr = that.Request.MatchMakingResponse.decode(wrp.message.value);
                     console.log(JSON.stringify(mrr));
+                    that.$router.push("/game");
+                    that.$router.go(0);
                     if (mrr.type === 0 && this.matchmaking) {
                         if (that.MatchMakingRequest("Accept")) {
                             console.log("Accepted as " + mrr.role);
                             this.global.status = 1;
                             this.global.role = mrr.role;
-                            this.$router.push("/game");
-                            this.$router.go(0);
                         }
                     }
                 }
