@@ -40,6 +40,10 @@
             }
         },
         mounted() {
+            if (!(this.global.status === 2)) {
+                this.$router.push('/');
+                this.$router.go(0);
+            }
             window.blur();
             this.fixLayout();
             window.onload = this.fixLayout;
