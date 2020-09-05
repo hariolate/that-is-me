@@ -48,6 +48,7 @@ func (m MermaidVisualizer) Visualize(machine FSM) ([]byte, error) {
 	})
 
 	buffer := bytes.Buffer{}
+	buffer.WriteString("graph TD\n")
 
 	for _, key := range sortedEKeys {
 		val := fsm.transitions[key]

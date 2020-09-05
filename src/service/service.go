@@ -2,98 +2,42 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"gtihub.com/gin-websocket/src/protocol"
 	"log"
 	"net/http"
 	"sync/atomic"
-	"time"
 )
 
 type Service struct {
 	id uuid.UUID
-
-	r *redis.Client
-	c context.Context
-
+	c  context.Context
 	*gin.Engine
-
-	uid uint32
-
-	clients map[uint32]*client
+	uid               uint64
+	clients           map[uint64]*client
+	availableForMatch chan *client
 }
 
-func FromConfig(c *Config, ctx context.Context) *Service {
+func FromConfig(ctx context.Context) *Service {
 	return &Service{
 		id: uuid.New(),
 
-		r: redis.NewClient(MustParseRedisURL(c.Storage.RedisURL)),
 		c: ctx,
 
 		Engine: gin.Default(),
 		uid:    0,
 
-		clients: make(map[uint32]*client),
+		clients:           make(map[uint64]*client),
+		availableForMatch: make(chan *client, 10000),
 	}
 }
 
-func (s *Service) redisChatHistoryKey() string {
-	return fmt.Sprintf("chat:%s:history", s.id)
+func (s *Service) getNextUid() uint64 {
+	return atomic.AddUint64(&s.uid, 1)
 }
-
-func (s *Service) storeChatMessage(m *protocol.Message) {
-	data, err := proto.Marshal(m)
-	NoError(err)
-	NoError(s.r.LPush(s.c, s.redisChatHistoryKey(), string(data)).Err())
-}
-
-func (s *Service) getNextUid() uint32 {
-	return atomic.AddUint32(&s.uid, 1)
-}
-
-func (s *Service) getAllHistoryMessages() []*protocol.Message {
-	protoMessages, err := s.r.LRange(s.c, s.redisChatHistoryKey(), 0, -1).Result()
-	NoError(err)
-
-	var results = make([]*protocol.Message, len(protoMessages))
-
-	for i, protoMessage := range protoMessages {
-		var message protocol.Message
-		NoError(proto.Unmarshal([]byte(protoMessage), &message))
-		//NoError(json.Unmarshal([]byte(jsonMessage), &message))
-		results[i] = &message
-	}
-
-	return results
-}
-
-func (s *Service) onNewMessage(m *protocol.Message) {
-	if m == nil {
-		return
-	}
-	s.broadcastMessage(m)
-	s.storeChatMessage(m)
-}
-
-func (s *Service) broadcastMessage(m *protocol.Message) {
-	clients := s.clients
-
-	for _, client := range clients {
-		go client.sendMessage(m)
-	}
-}
-
-const (
-	writeWait      = 10 * time.Second
-	pongWait       = 60 * time.Second
-	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 512
-)
 
 func (s *Service) newClient(w http.ResponseWriter, r *http.Request) {
 	wsupgrader := websocket.Upgrader{
@@ -110,13 +54,14 @@ func (s *Service) newClient(w http.ResponseWriter, r *http.Request) {
 	c, f := context.WithCancel(s.c)
 
 	cli := &client{
-		conn:       conn,
-		srv:        s,
-		id:         s.getNextUid(),
-		firstPong:  true,
-		toSendChan: make(chan *protocol.Message, 100),
-		c:          c,
-		cancelFunc: f,
+		conn:              conn,
+		srv:               s,
+		id:                s.getNextUid(),
+		firstPong:         true,
+		toSendChan:        make(chan *protocol.Wrapper, 100),
+		c:                 c,
+		cancelFunc:        f,
+		availableForMatch: false,
 	}
 
 	cli.setupWorkers()
@@ -136,6 +81,7 @@ func (s *Service) removeClient(c *client) {
 	}
 	delete(s.clients, c.id)
 
+	c.availableForMatch = false
 	c.cancelFunc()
 	close(c.toSendChan)
 	_ = c.conn.Close()
@@ -152,4 +98,65 @@ func (s *Service) Shutdown() {
 	}
 }
 
-// TODO close all connections when service is closed
+func (s *Service) onReceiveNewMessage(c *client, m *protocol.Wrapper) {
+	anyData := m.Message
+	messageType := m.Type
+
+	switch messageType {
+	case protocol.Wrapper_MatchMakingRequest:
+		s.handleMatchMakingRequest(c, anyData)
+	default:
+		c.match.handleMatchEvents(c, messageType, anyData)
+	}
+}
+
+func (s *Service) handleMatchMakingRequest(a *client, any *any.Any) {
+	var matchMakingRequest protocol.MatchMakingRequest
+	MustUnmarshalAnyProto(any, &matchMakingRequest)
+	requestType := matchMakingRequest.Type
+	switch requestType {
+	case protocol.MatchMakingRequest_Begin:
+		s.availableForMatch <- a
+		a.availableForMatch = true
+	case protocol.MatchMakingRequest_Cancel:
+		a.availableForMatch = false
+	case protocol.MatchMakingRequest_Accept:
+		a.match.acceptMatch(a)
+	case protocol.MatchMakingRequest_NotAccept:
+		a.match.notAcceptMatch()
+	}
+}
+
+func (s *Service) matchMakingWorker() {
+	var a, b *client
+	for {
+		select {
+		case <-s.c.Done():
+			return
+		case cli := <-s.availableForMatch:
+			if a == nil {
+				a = cli
+				continue
+			}
+			if b == nil {
+				b = cli
+				continue
+			}
+
+			s.newMatch(a, b)
+		}
+	}
+}
+
+func (s *Service) newMatch(a, b *client) {
+	if a.availableForMatch && b.availableForMatch {
+		newMatch(a, b)
+	} else {
+		if a.availableForMatch {
+			s.availableForMatch <- a
+		}
+		if b.availableForMatch {
+			s.availableForMatch <- b
+		}
+	}
+}

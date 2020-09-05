@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"io/ioutil"
 	"log"
 )
@@ -47,10 +50,25 @@ func ServeAddrFromConfig(c *Config) string {
 	return addr + ":" + port
 }
 
-func MustMarshal(obj interface{}) []byte {
-	data, err := json.Marshal(obj)
+func MustMarshalProto(obj interface{}) []byte {
+	data, err := proto.Marshal(obj.(proto.Message))
 	NoError(err)
 	return data
+}
+
+func MustUnmarshalProto(data []byte, o interface{}) {
+	NoError(proto.Unmarshal(data, o.(proto.Message)))
+}
+
+func MustMarshalAnyProto(msg proto.Message) *any.Any {
+	res, err := ptypes.MarshalAny(msg)
+	NoError(err)
+	return res
+}
+
+func MustUnmarshalAnyProto(data *any.Any, msg proto.Message) {
+	err := ptypes.UnmarshalAny(data, msg)
+	NoError(err)
 }
 
 func MakeCORSMiddleware() gin.HandlerFunc {
