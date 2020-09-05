@@ -32,6 +32,13 @@
             window.onblur = this.blur;
             window.onfocus = this.focus;
             setInterval(this.twinkle, 50);
+            this.ws.onmessage = function (evt) {
+                console.log(evt);
+            }
+            const that = this;
+            this.ws.onopen = function () {
+                that.ws.send("Hello");
+            }
         },
         methods: {
             fixLayout() {
