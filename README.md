@@ -1,6 +1,22 @@
 # That！s Me 
 That is me is an anonymous gaming social platform that pays tribute to Turing.
 
+## Key Features
+* **COMPLETELY** anonymous
+* Coop in limited time
+* Random Theme
+* Limited time chatting as winners' reward
+* Reinforcement learning AI
+
+## Tech Stacks
+* vue.js for static webapp
+* protobuf for frontend/backend protocol
+* redis for AI data storage
+* gin for web framework
+* websocket for frontend/backend communication
+* docker and docker-compose for deployment and hot-reload development environment
+* github action for CI/CD
+
 ## Usage
 > WARNING: the developers have *never ever* run this project on **`Windows`**
 ### Requirements
@@ -24,7 +40,7 @@ docker pull hariolate/that-is-me:latest
     * Mentor - 谢函瀚 ([@xhhzuikeaiya](https://github.com/xhhzuikeaiya)) <br>
     * Mentor - 黄嘉杰 ([@huangjj979](https://github.com/huangjj979)) <br>
     * Lead Developer - 黄扬 ([@huang825172](https://github.com/huang825172)) <br>
-    * Coder - 方泓睿 ([@chfanghr](https://github.com/chfanghr)) <br>
+    * USELESS BRAINLESS Coder - 方泓睿 ([@chfanghr](https://github.com/chfanghr)) <br>
 * For third party credits, See [CREDITS.md](CREDITS.md)
 
 ## License
