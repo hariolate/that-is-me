@@ -17,7 +17,7 @@
     import common from "../common";
 
     export default {
-        name: "Index.vue",
+        name: "Index",
         data() {
             return {
                 logoImg: common.logoStatic,
@@ -48,7 +48,8 @@
             },
             enter(evt) {
                 if (evt.code === "Enter") {
-                    alert("Enter");
+                    this.$router.push("/game");
+                    this.$router.go(0);
                 }
             },
             blur() {
