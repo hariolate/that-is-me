@@ -6,7 +6,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"gtihub.com/gin-websocket/src/protocol"
+	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"log"
 	"net/http"
 	"sync/atomic"

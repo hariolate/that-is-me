@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
-	"gtihub.com/gin-websocket/src/protocol"
+	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"log"
 	"time"
 )

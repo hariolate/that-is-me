@@ -4,8 +4,8 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"gtihub.com/gin-websocket/src/fsm"
-	"gtihub.com/gin-websocket/src/protocol"
+	"gtihub.com/hariolate/that-is-me/src/fsm"
+	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"math/rand"
 	"time"
 )

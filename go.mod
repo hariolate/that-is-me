@@ -1,4 +1,4 @@
-module gtihub.com/gin-websocket
+module gtihub.com/hariolate/that-is-me
 
 go 1.15
 
