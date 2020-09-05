@@ -49,9 +49,14 @@
             const that = this;
             this.global.status = 0;
             this.global.role = -1;
+            this.ws.onopen = function () {
+                console.log("WebSocket Ready");
+            }
+            this.ws.onclose = function () {
+                console.log("WebSocket Down");
+            }
             this.ws.onmessage = function (evt) {
                 const wrp = that.Request.Wrapper.decode(new Uint8Array(evt.data));
-                console.log(JSON.stringify(wrp));
                 if (wrp.type === 0) {
                     console.log("Looped!");
                 }
