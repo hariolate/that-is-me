@@ -22,7 +22,7 @@ type Service struct {
 }
 
 func FromConfig(conf *Config, ctx context.Context) *Service {
-	return &Service{
+	srv := &Service{
 		id: uuid.New(),
 
 		c: ctx,
@@ -33,6 +33,8 @@ func FromConfig(conf *Config, ctx context.Context) *Service {
 		clients:           make(map[uint64]*client),
 		availableForMatch: make(chan *client, 10000),
 	}
+	go srv.matchMakingWorker()
+	return srv
 }
 
 func (s *Service) getNextUid() uint64 {
@@ -114,6 +116,7 @@ func (s *Service) handleMatchMakingRequest(a *client, any *any.Any) {
 	var matchMakingRequest protocol.MatchMakingRequest
 	MustUnmarshalAnyProto(any, &matchMakingRequest)
 	requestType := matchMakingRequest.Type
+	log.Printf("client %d: match making request: %s", a.id, matchMakingRequest.Type)
 	switch requestType {
 	case protocol.MatchMakingRequest_Begin:
 		s.availableForMatch <- a
@@ -134,21 +137,24 @@ func (s *Service) matchMakingWorker() {
 		case <-s.c.Done():
 			return
 		case cli := <-s.availableForMatch:
+			log.Printf("client %d avalable for match making", cli.id)
 			if a == nil {
 				a = cli
 				continue
 			}
 			if b == nil {
 				b = cli
-				continue
 			}
 
 			s.newMatch(a, b)
+			a = nil
+			b = nil
 		}
 	}
 }
 
 func (s *Service) newMatch(a, b *client) {
+	log.Printf("creating new match for client %d and %d", a.id, b.id)
 	if a.availableForMatch && b.availableForMatch {
 		newMatch(a, b)
 	} else {

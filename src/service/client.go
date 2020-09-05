@@ -81,7 +81,7 @@ func (c *client) receiveWorker() {
 func (c *client) handleReceivedMessage(data []byte) *protocol.Wrapper {
 	var wrappedMessage protocol.Wrapper
 	NoError(proto.Unmarshal(data, &wrappedMessage))
-	log.Panicf("wrapped message: %s", wrappedMessage.String())
+	log.Printf("wrapped message: %s", wrappedMessage.String())
 	return &wrappedMessage
 }
 
