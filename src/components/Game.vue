@@ -17,12 +17,107 @@
 <script>
     import common from "../common";
 
+    class Sprite {
+        constructor(sprite) {
+            this.frames = {};
+            this.dir = "idle";
+            this.lastdir = "down";
+            this.count = {
+                up: 0,
+                down: 0,
+                left: 0,
+                right: 0,
+            };
+            for (const dir in sprite) {
+                this.frames[dir] = []
+                for (const idx in sprite[dir]) {
+                    this.frames[dir].push(new Image());
+                    this.frames[dir][idx].src = sprite[dir][idx];
+                }
+            }
+        }
+
+        Dir(dir) {
+            this.lastdir = this.dir;
+            this.dir = dir;
+        }
+
+        Move() {
+            if (this.dir === "idle") {
+                if (this.lastdir === "idle") {
+                    return this.frames['down'][0];
+                }
+                return this.frames[this.lastdir][0];
+            } else {
+                if (this.count[this.dir] === 4) this.count[this.dir] = 0;
+                const res = this.frames[this.dir][this.count[this.dir]];
+                this.count[this.dir]++;
+                return res;
+            }
+        }
+    }
+
+    class Player {
+        constructor(spriteObj) {
+            this.sprite = spriteObj;
+            this.speed = 0.02;
+            this.padding = 0.05;
+            this.x = 0;
+            this.y = 0;
+        }
+
+        Key(k) {
+            if (k === null) {
+                this.sprite.Dir("idle");
+            }
+            switch (k) {
+                case "KeyW":
+                    this.sprite.Dir("up");
+                    break;
+                case "KeyS":
+                    this.sprite.Dir("down");
+                    break;
+                case "KeyA":
+                    this.sprite.Dir("left");
+                    break;
+                case "KeyD":
+                    this.sprite.Dir("right");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        Img() {
+            switch (this.sprite.dir) {
+                case "idle":
+                    break;
+                case "up":
+                    if (this.y > this.padding) this.y -= this.speed;
+                    break;
+                case "down":
+                    if (this.y < 1 - this.padding*3) this.y += this.speed;
+                    break;
+                case "left":
+                    if (this.x > this.padding) this.x -= this.speed;
+                    break;
+                case "right":
+                    if (this.x < 1 - this.padding*2) this.x += this.speed;
+                    break;
+                default:
+                    break;
+            }
+            return this.sprite.Move();
+        }
+    }
+
     export default {
         name: "Game",
         data() {
             return {
                 logoImg: common.logoStatic,
-                title: "Ant",
+                player: new Player(new Sprite(common.sprite.cat02)),
+                title: "Cat",
                 length: 0,
                 ctx: null,
             }
@@ -31,8 +126,10 @@
             window.onload = this.fixLayout;
             window.onresize = this.fixLayout;
             window.onkeydown = this.keyInput;
+            window.onkeyup = this.keyOut;
             this.ctx = document.querySelector("#content").getContext("2d");
-            setInterval(this.animate, 50);
+            setInterval(this.twinkle, 30);
+            setInterval(this.animate, 80);
         },
         methods: {
             fixLayout() {
@@ -46,20 +143,26 @@
                 c.height = this.length;
                 v.style.visibility = "visible";
             },
-            animate() {
+            twinkle() {
                 const t = document.querySelector("#title");
                 const v = document.querySelector("#view");
                 t.style.opacity = 70 + Math.random() * 30 + "%";
                 v.style.opacity = 80 + Math.random() * 20 + "%";
+            },
+            animate() {
                 this.ctx.fillStyle = "#FFFFFF";
                 this.ctx.fillRect(0, 0, this.length, this.length);
+                this.ctx.drawImage(
+                    this.player.Img(),
+                    this.player.x * this.length,
+                    this.player.y * this.length);
             },
             keyInput(evt) {
-                if (evt.code === "Enter") {
-                    this.$router.push("/chat");
-                    this.$router.go(0);
-                }
+                this.player.Key(evt.code);
             },
+            keyOut() {
+                this.player.Key(null);
+            }
         }
     }
 </script>
@@ -88,6 +191,7 @@
     #view {
         visibility: hidden;
         margin-left: 50%;
+        background: white;
         transform: translateX(-50%);
     }
 </style>

@@ -43,8 +43,8 @@
             twinkle() {
                 const l = document.querySelector("#logo");
                 const t = document.querySelector("#title");
-                l.style.opacity = 80+Math.random()*20+"%";
-                t.style.opacity = 70+Math.random()*30+"%";
+                l.style.opacity = 80 + Math.random() * 20 + "%";
+                t.style.opacity = 70 + Math.random() * 30 + "%";
             },
             enter(evt) {
                 if (evt.code === "Enter") {
