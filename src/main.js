@@ -13,9 +13,13 @@ Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 Vue.use(VueRouter);
 Vue.prototype.axios = axios;
-Vue.prototype.ws = new WebSocket('ws://158.247.202.150:7000/ws');
-//Vue.prototype.ws = new WebSocket('wss://echo.websocket.org/');
+//Vue.prototype.ws = new WebSocket('ws://158.247.202.150:7000/ws');
+Vue.prototype.ws = new WebSocket('wss://echo.websocket.org/');
 Vue.prototype.ws.binaryType = "arraybuffer";
+Vue.prototype.global = {
+    status: 0,
+    role: -1,
+}
 
 const router = new VueRouter({
     mode: 'hash',

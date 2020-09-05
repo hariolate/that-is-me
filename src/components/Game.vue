@@ -133,6 +133,10 @@
             }
         },
         mounted() {
+            if (!(this.global.status === 1) || this.global.role === -1) {
+                this.$router.push("/");
+                this.$router.go(0);
+            }
             this.$bvModal.show("round");
             this.fixLayout();
             window.onload = this.fixLayout;

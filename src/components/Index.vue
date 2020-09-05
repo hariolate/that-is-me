@@ -47,6 +47,8 @@
             window.onfocus = this.focus;
             setInterval(this.twinkle, 50);
             const that = this;
+            this.global.status = 0;
+            this.global.role = -1;
             this.ws.onmessage = function (evt) {
                 const wrp = that.Request.Wrapper.decode(new Uint8Array(evt.data));
                 console.log(JSON.stringify(wrp));
@@ -56,9 +58,13 @@
                 if (wrp.type === 1) {
                     const mrr = that.Request.MatchMakingResponse.decode(wrp.message.value);
                     console.log(JSON.stringify(mrr));
-                    if (mrr.type === 0) {
+                    if (mrr.type === 0 && this.matchmaking) {
                         if (that.MatchMakingRequest("Accept")) {
-                            console.log("Accepted!");
+                            console.log("Accepted as " + mrr.role);
+                            this.global.status = 1;
+                            this.global.role = mrr.role;
+                            this.$router.push("/game");
+                            this.$router.go(0);
                         }
                     }
                 }
@@ -107,11 +113,6 @@
                         this.title = "Enter 2 Enter";
                         this.matchmaking = false;
                     }
-                } else if (evt.code === "Enter" && this.matchmaking) {
-                    this.$router.push("/game");
-                    this.$router.go(0);
-                } else {
-                    console.log("No");
                 }
             },
             blur() {
