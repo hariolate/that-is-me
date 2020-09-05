@@ -9,6 +9,6 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go
 ENTRYPOINT CompileDaemon \
                         -color=true \
                         -exclude-dir="./tools/dev/db_data" \
-                        -pattern="(.+\.go|.+\.vue|.+\.proto)$" \
+                        -pattern="(.+\.go|.+\.vue)$" \
                         -build="./tools/build.sh" \
                         -command="./bin/app-Linux -config tools/dev/config.json"
