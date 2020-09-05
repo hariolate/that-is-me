@@ -21,8 +21,14 @@ func MustReadFile(path string) []byte {
 	return data
 }
 
-func MustUnmarshal(data []byte, o interface{}) {
+func MustUnmarshalJson(data []byte, o interface{}) {
 	NoError(json.Unmarshal(data, o))
+}
+
+func MustMarshalJson(o interface{}) []byte {
+	data, err := json.Marshal(o)
+	NoError(err)
+	return data
 }
 
 func MustParseRedisURL(url string) *redis.Options {

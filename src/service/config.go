@@ -21,6 +21,6 @@ type Config struct {
 
 func ConfigFromFile(path string) *Config {
 	var c Config
-	MustUnmarshal(MustReadFile(path), &c)
+	MustUnmarshalJson(MustReadFile(path), &c)
 	return &c
 }

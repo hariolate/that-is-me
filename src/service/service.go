@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"gtihub.com/hariolate/that-is-me/src/protocol"
@@ -18,6 +19,7 @@ type Service struct {
 	uid               uint64
 	clients           map[uint64]*client
 	availableForMatch chan *client
+	r                 *redis.Client
 }
 
 func FromConfig(conf *Config, ctx context.Context) *Service {
@@ -31,6 +33,8 @@ func FromConfig(conf *Config, ctx context.Context) *Service {
 
 		clients:           make(map[uint64]*client),
 		availableForMatch: make(chan *client, 10000),
+
+		r: redis.NewClient(MustParseRedisURL(conf.Storage.RedisURL)),
 	}
 	go srv.matchMakingWorker()
 	return srv
@@ -155,7 +159,7 @@ func (s *Service) matchMakingWorker() {
 func (s *Service) newMatch(a, b *client) {
 	log.Printf("creating new match for client %d and %d", a.id, b.id)
 	if a.availableForMatch && b.availableForMatch {
-		newMatch(a, b)
+		newMatch(a, b, s)
 	} else {
 		if a.availableForMatch {
 			s.availableForMatch <- a

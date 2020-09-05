@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/protobuf/proto"
 	"gtihub.com/hariolate/that-is-me/src/fsm"
@@ -9,12 +10,14 @@ import (
 	"time"
 )
 
-type position struct {
-	x, y uint32
+type Position struct {
+	X, Y uint32
 }
 type object struct {
 	objectId uint32
-	pos      position
+	pos      Position
+	rec      TraceRecord
+	recFrame int
 }
 
 func clamp(v, lo, hi int64) int64 {
@@ -27,18 +30,48 @@ func clamp(v, lo, hi int64) int64 {
 	return v
 }
 
-func (o *object) randomlyMove() {
-	move_x := rand.Int63() % canvasWeight
-	move_y := rand.Int63() % canvasHeight
+func (o *object) setRecTrace(rec TraceRecord) {
+	o.rec = rec
+	o.recFrame = 0
+}
 
-	x := int64(o.pos.x) + move_x
-	y := int64(o.pos.y) + move_y
+func (o *object) move() {
+	if o.rec != nil {
+		o.moveAsTraceRecord()
+	} else {
+		o.randomlyMove()
+	}
+}
+
+func (o *object) moveAsTraceRecord() {
+	o.recFrame++
+	if o.recFrame == len(o.rec) {
+		o.rec = nil
+		return
+	}
+	xOffset := int64(o.rec[o.recFrame].X - o.rec[o.recFrame-1].X)
+	yOffset := int64(o.rec[o.recFrame].Y - o.rec[o.recFrame-1].Y)
+	x := int64(o.pos.X) + xOffset
+	y := int64(o.pos.Y) + yOffset
+	x = clamp(x, 0, canvasWeight)
+	y = clamp(x, 0, canvasHeight)
+	o.pos = Position{uint32(x), uint32(y)}
+}
+
+func (o *object) randomlyMove() {
+	moveX := rand.Int63() % canvasWeight
+	moveY := rand.Int63() % canvasHeight
+
+	x := int64(o.pos.X) + moveX
+	y := int64(o.pos.Y) + moveY
 
 	x = clamp(x, 0, canvasWeight)
 	y = clamp(x, 0, canvasHeight)
 
-	o.pos = position{uint32(x), uint32(y)}
+	o.pos = Position{uint32(x), uint32(y)}
 }
+
+type TraceRecord []Position
 
 type match struct {
 	a, b *client
@@ -49,6 +82,11 @@ type match struct {
 	objects         map[uint32]*object
 	playerBObjectId uint32
 	gameWin         bool
+
+	srv *Service
+
+	traceRec TraceRecord
+	recTrace bool
 }
 
 func (m *match) acceptMatch(c *client) {
@@ -110,8 +148,8 @@ func (m *match) getCurrentObjectsMessage() (res []*protocol.Object) {
 	for _, object := range m.objects {
 		res = append(res, &protocol.Object{
 			Position: &protocol.Position{
-				X: object.pos.x,
-				Y: object.pos.y,
+				X: object.pos.X,
+				Y: object.pos.Y,
 			},
 			ObjectId: object.objectId,
 		})
@@ -134,9 +172,9 @@ func (m *match) genObjects() {
 	for i := 0; i < objectNum; i++ {
 		obj := &object{
 			objectId: uint32(rand.Int()),
-			pos: position{
-				x: uint32(rand.Int()) % canvasWeight,
-				y: uint32(rand.Int()) % canvasHeight,
+			pos: Position{
+				X: uint32(rand.Int()) % canvasWeight,
+				Y: uint32(rand.Int()) % canvasHeight,
 			},
 		}
 		m.objects[obj.objectId] = obj
@@ -144,11 +182,12 @@ func (m *match) genObjects() {
 	}
 }
 
-func newMatch(a, b *client) *match {
+func newMatch(a, b *client, s *Service) *match {
 	match := &match{
 		a:    a,
 		b:    b,
 		data: make(map[string]interface{}),
+		srv:  s,
 	}
 	machine := fsm.New(
 		"match_pending",
@@ -273,6 +312,12 @@ func (m *match) sendObjectsLocationUpdateEvent() {
 	m.b.sendMessage(protocol.Wrapper_ObjectsLocationUpdateEvent, &msg)
 }
 
+func (m *match) saveRecTrace() {
+	counter := m.srv.r.Incr(m.srv.c, "trace:counter")
+	NoError(counter.Err())
+	NoError(m.srv.r.Set(m.srv.c, fmt.Sprintf("trace:%d", counter.Val()), string(MustMarshalJson(m.traceRec)), 0).Err())
+}
+
 func (m *match) gameWorker() {
 	t := time.NewTicker(gameDuration)
 	defer func() {
@@ -296,8 +341,27 @@ func (m *match) gameWorker() {
 				m.gameWin = true
 				return
 			}
+			if rand.Int63n(100) > 50 {
+				m.traceRec = nil
+				m.recTrace = true
+			} else {
+				go m.saveRecTrace()
+				m.recTrace = false
+			}
+
 			for _, obj := range m.objects {
-				obj.randomlyMove()
+				if obj.objectId != m.playerBObjectId {
+					if rand.Int63n(100) > 50 && m.traceRec != nil {
+						a := rand.Intn(len(m.traceRec))
+						b := rand.Intn(len(m.traceRec))
+
+						if a > b {
+							a, b = b, a
+						}
+						obj.setRecTrace(m.traceRec[a:b])
+					}
+					obj.move()
+				}
 			}
 			m.sendObjectsLocationUpdateEvent()
 		}
@@ -315,9 +379,13 @@ func (m *match) handleUserAKillEvent(e *protocol.UserAKillEvent) {
 func (m *match) handleUserBMoveEvent(e *protocol.UserBMoveEvent) {
 	if m.fsm.Is("game_begin") {
 		if object, ok := m.objects[m.playerBObjectId]; ok {
-			object.pos = position{
-				x: e.To.X,
-				y: e.To.Y,
+			pos := Position{
+				X: e.To.X,
+				Y: e.To.Y,
+			}
+			object.pos = pos
+			if m.recTrace {
+				m.traceRec = append(m.traceRec, pos)
 			}
 		}
 		return
