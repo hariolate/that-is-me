@@ -1,4 +1,6 @@
 # That！s Me 
+![intro](docs/intro.png)
+
 That is me is an anonymous gaming social platform that pays tribute to Turing.
 
 ## Key Features
