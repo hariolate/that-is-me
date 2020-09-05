@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option go_package = ".;protocol";
+
+message UserATapEvent{
+  uint32 object = 1;
+}
+
+message Position{
+  uint32 x = 1;
+  uint32 y = 2;
+}
+
+message UserBMoveEvent{
+  Position to = 1;
+}
+
+message GameStateChangeEvent{
+  enum Type{
+    Ready = 0;
+    End = 1;
+  }
+  Type type = 1;
+}
+
+message ClientMatchStatusRequest{
+  enum Type{
+    Ready = 0;
+    End = 1;
+  }
+  Type type = 1;
+}
+
+message GameResultEvent{
+  enum Type{
+    Success = 0;
+    Failure = 1;
+  }
+  Type type = 1;
+}
+
+message ChatSessionEvent{
+  enum Type{
+    Begin = 0;
+    End = 1;
+  }
+  Type type = 1;
+}
+
+

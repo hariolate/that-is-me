@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = ".;protocol";
+
+message MatchMakingRequest{
+  enum Type{
+    Begin = 0;
+    Cancel = 1;
+  }
+
+  Type type = 1;
+}
+
+message MatchMakingResponse{
+  enum Type{
+    Ready = 0;
+    NotAvailable = 1;
+  }
+  Type type = 1;
+}
+
