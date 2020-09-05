@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
 	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"log"
 	"time"

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/protobuf/proto"
 	"gtihub.com/hariolate/that-is-me/src/fsm"
 	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"math/rand"
@@ -26,6 +26,7 @@ func clamp(v, lo, hi int64) int64 {
 	}
 	return v
 }
+
 func (o *object) randomlyMove() {
 	move_x := rand.Int63() % canvasWeight
 	move_y := rand.Int63() % canvasHeight

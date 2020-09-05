@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	"google.golang.org/protobuf/proto"
 	"io/ioutil"
 	"log"
 )
@@ -58,17 +56,6 @@ func MustMarshalProto(obj proto.Message) []byte {
 
 func MustUnmarshalProto(data []byte, o proto.Message) {
 	NoError(proto.Unmarshal(data, o))
-}
-
-func MustMarshalAnyProto(msg proto.Message) *any.Any {
-	res, err := ptypes.MarshalAny(msg)
-	NoError(err)
-	return res
-}
-
-func MustUnmarshalAnyProto(data *any.Any, msg proto.Message) {
-	err := ptypes.UnmarshalAny(data, msg)
-	NoError(err)
 }
 
 func MakeCORSMiddleware() gin.HandlerFunc {
