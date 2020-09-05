@@ -11,6 +11,8 @@ ENTRYPOINT CompileDaemon \
                         -exclude-dir="./tools/dev/db_data" \
                         -exclude-dir="./static" \
                         -exclude-dir="./node_modules" \
+                        -exclude-dir="./tools/dev" \
+                        -exclude-dir="./bin" \
                         -pattern="(.+\.go|.+\.proto|.+\.vue)$" \
                         -build="./tools/build.sh" \
                         -command="./bin/app-Linux -config tools/dev/config.json"
