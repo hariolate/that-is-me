@@ -143,7 +143,6 @@ func (s *Service) matchMakingWorker() {
 			}
 			if b == nil {
 				b = cli
-				continue
 			}
 
 			s.newMatch(a, b)
