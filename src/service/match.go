@@ -1,8 +1,8 @@
 package service
 
 import (
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"google.golang.org/protobuf/proto"
 	"gtihub.com/hariolate/that-is-me/src/fsm"
 	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"math/rand"
