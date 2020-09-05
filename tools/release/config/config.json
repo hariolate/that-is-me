@@ -1,0 +1,9 @@
+{
+  "serve_on": {
+    "addr": "0.0.0.0",
+    "port": "80"
+  },
+  "storage": {
+    "redis_url": "redis://redis"
+  }
+}

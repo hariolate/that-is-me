@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: ""
+      dockerfile: tools/dev/Dockerfile
+    expose:
+      - 80
+    ports:
+      - '7000:80'
+    volumes:
+      - ./:/app
+    restart: always
+    depends_on:
+      - redis
+  redis:
+    image: redis
+#    ports:
+#      - '7002:6379'
+    volumes:
+      - ./tools/dev/redis_data:/data
+    entrypoint: redis-server --appendonly yes
+    restart: always

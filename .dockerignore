@@ -1,0 +1,5 @@
+node_modules
+bin
+static
+tools/dev/bin
+tools/dev/*_data

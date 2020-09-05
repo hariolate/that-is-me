@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = ".;protocol";
+
+import "google/protobuf/timestamp.proto";
+
+message RawMessage{
+  string message = 1;
+}
+
+message Message{
+  uint32 uid = 1;
+  RawMessage raw = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
