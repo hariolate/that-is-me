@@ -22,7 +22,7 @@ type Service struct {
 }
 
 func FromConfig(conf *Config, ctx context.Context) *Service {
-	return &Service{
+	srv := &Service{
 		id: uuid.New(),
 
 		c: ctx,
@@ -33,6 +33,8 @@ func FromConfig(conf *Config, ctx context.Context) *Service {
 		clients:           make(map[uint64]*client),
 		availableForMatch: make(chan *client, 10000),
 	}
+	go srv.matchMakingWorker()
+	return srv
 }
 
 func (s *Service) getNextUid() uint64 {
