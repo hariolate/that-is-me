@@ -41,6 +41,7 @@
         },
         mounted() {
             window.blur();
+            this.fixLayout();
             window.onload = this.fixLayout;
             window.onresize = this.fixLayout;
             window.onkeydown = this.keyInput;
