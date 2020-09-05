@@ -33,8 +33,7 @@
             }
         },
         mounted() {
-            const host = location.host;
-            const ws = new WebSocket('ws://'+host+'/ws');
+            const ws = this.ws;
             ws.binaryType = "arraybuffer";
             const rmsg = root.lookupType("RawMessage");
             const msg = root.lookupType("Message");

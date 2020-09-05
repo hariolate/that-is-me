@@ -1,5 +1,14 @@
 <template>
     <div>
+        <b-modal
+                centered
+                hide-header
+                hide-footer
+                id="round">
+            <b-img
+                    fluid
+                    :src="logoCat"></b-img>
+        </b-modal>
         <div id="background">
             <h2
                     align="center"
@@ -96,13 +105,13 @@
                     if (this.y > this.padding) this.y -= this.speed;
                     break;
                 case "down":
-                    if (this.y < 1 - this.padding*3) this.y += this.speed;
+                    if (this.y < 1 - this.padding * 3) this.y += this.speed;
                     break;
                 case "left":
                     if (this.x > this.padding) this.x -= this.speed;
                     break;
                 case "right":
-                    if (this.x < 1 - this.padding*2) this.x += this.speed;
+                    if (this.x < 1 - this.padding * 2) this.x += this.speed;
                     break;
                 default:
                     break;
@@ -116,13 +125,16 @@
         data() {
             return {
                 logoImg: common.logoStatic,
+                logoCat: common.logoCat,
                 player: new Player(new Sprite(common.sprite.cat02)),
-                title: "Cat",
+                title: "Cat 00:41",
                 length: 0,
                 ctx: null,
             }
         },
         mounted() {
+            this.$bvModal.show("round");
+            this.fixLayout();
             window.onload = this.fixLayout;
             window.onresize = this.fixLayout;
             window.onkeydown = this.keyInput;
@@ -158,7 +170,12 @@
                     this.player.y * this.length);
             },
             keyInput(evt) {
-                this.player.Key(evt.code);
+                if (evt.code === "Enter") {
+                    this.$router.push("/chat");
+                    this.$router.go(0);
+                } else {
+                    this.player.Key(evt.code);
+                }
             },
             keyOut() {
                 this.player.Key(null);
@@ -182,6 +199,7 @@
 
     #title {
         margin-top: 15vh;
+        color: gray;
     }
 
     #content {

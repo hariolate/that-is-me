@@ -7,7 +7,10 @@
                         :src="logoImg"
                         id="logo"
                 ></b-img>
-                <h4 id="title">{{title}}</h4>
+                <h4 id="title">{{title}}
+                    <b-spinner
+                            v-show="matchmaking"
+                            type="grow"></b-spinner></h4>
             </div>
         </div>
     </div>
@@ -22,6 +25,7 @@
             return {
                 logoImg: common.logoStatic,
                 title: "Enter 2 Enter",
+                matchmaking: false,
             }
         },
         mounted() {
@@ -32,6 +36,13 @@
             window.onblur = this.blur;
             window.onfocus = this.focus;
             setInterval(this.twinkle, 50);
+            this.ws.onmessage = function (evt) {
+                console.log(evt);
+            }
+            const that = this;
+            this.ws.onopen = function () {
+                that.ws.send("Hello");
+            }
         },
         methods: {
             fixLayout() {
@@ -47,7 +58,13 @@
                 t.style.opacity = 70 + Math.random() * 30 + "%";
             },
             enter(evt) {
-                if (evt.code === "Enter") {
+                if (evt.code === "Enter" && !this.matchmaking) {
+                    this.title = "MatchMaking ";
+                    this.matchmaking = true;
+                } else if (evt.code === "Escape" && this.matchmaking) {
+                    this.title = "Enter 2 Enter";
+                    this.matchmaking = false;
+                } else if (evt.code === "Enter" && this.matchmaking) {
                     this.$router.push("/game");
                     this.$router.go(0);
                 }

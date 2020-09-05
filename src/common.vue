@@ -1,5 +1,6 @@
 <script>
     const logoStatic = require('./assets/logo_static.png');
+    const logoCat = require('./assets/logo_cat.png');
     const sprite = {
         cat02: {
             down: [
@@ -31,6 +32,7 @@
     export default {
         name: "common",
         logoStatic,
+        logoCat,
         sprite,
     }
 </script>

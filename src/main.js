@@ -13,6 +13,7 @@ Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 Vue.use(VueRouter);
 Vue.prototype.axios = axios;
+Vue.prototype.ws = new WebSocket('wss://echo.websocket.org/');
 
 const router = new VueRouter({
     mode: 'hash',
