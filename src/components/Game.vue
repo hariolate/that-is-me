@@ -9,6 +9,18 @@
                     fluid
                     :src="logoCat"></b-img>
         </b-modal>
+        <b-modal
+                hide-header
+                hide-footer
+                id="success">
+            You survive!
+        </b-modal>
+        <b-modal
+                hide-header
+                hide-footer
+                id="fail">
+            You lose!
+        </b-modal>
         <div id="background">
             <h2
                     align="center"
@@ -118,6 +130,10 @@
             }
             return this.sprite.Move();
         }
+
+        Del() {
+            this.sprite = null;
+        }
     }
 
     export default {
@@ -127,7 +143,8 @@
                 logoImg: common.logoStatic,
                 logoCat: common.logoCat,
                 player: new Player(new Sprite(common.sprite.cat02)),
-                title: "Cat 00:41",
+                title: "00:60",
+                timeout: 60,
                 length: 0,
                 ctx: null,
                 NPC: [],
@@ -143,7 +160,7 @@
             this.$bvModal.show("round");
             this.fixLayout();
             const cs = new Sprite(common.sprite.cat02);
-            for (let i=0; i<5; i++) {
+            for (let i = 0; i < 5; i++) {
                 this.NPC.push(new Player(cs));
                 this.NPC[i].x = Math.random() * 0.5 + 0.3;
                 this.NPC[i].y = Math.random() * 0.5 + 0.3;
@@ -152,9 +169,22 @@
             window.onresize = this.fixLayout;
             window.onkeydown = this.keyInput;
             window.onkeyup = this.keyOut;
+            document.querySelector("#content").onclick = this.mouseClick;
             this.ctx = document.querySelector("#content").getContext("2d");
             setInterval(this.twinkle, 30);
             setInterval(this.animate, 80);
+            const that = this;
+            setInterval(() => {
+                that.timeout--;
+                that.title = "00:" + ('0' + that.timeout).slice(-2);
+                if (that.timeout === 0) {
+                    that.$bvModal.show("fail");
+                    setTimeout(() => {
+                        that.$router.push("/");
+                        that.$router.go(0);
+                    }, 2000);
+                }
+            }, 1000);
         },
         methods: {
             fixLayout() {
@@ -181,7 +211,7 @@
                     this.player.Img(),
                     this.player.x * this.length,
                     this.player.y * this.length);
-                for (let i=0; i<5; i++) {
+                for (let i = 0; i < 5; i++) {
                     this.ctx.drawImage(
                         this.NPC[i].Img(),
                         this.NPC[i].x * this.length,
@@ -190,19 +220,23 @@
             },
             keyInput(evt) {
                 if (evt.code === "Enter") {
-                    this.$router.push("/chat");
-                    this.$router.go(0);
+                    this.$bvModal.show("success");
+                    const that = this;
+                    setTimeout(() => {
+                        that.$router.push("/chat");
+                        that.$router.go(0);
+                    }, 2000);
                 } else {
                     this.player.Key(evt.code);
                     if (!this.pressed) {
                         this.pressed = true;
                         this.NPCdir = [];
-                        for (let i=0; i<5; i++) {
-                            const r = Math.floor(Math.random()*4);
-                            if (r===0) this.NPCdir.push("KeyW");
-                            if (r===1) this.NPCdir.push("KeyA");
-                            if (r===2) this.NPCdir.push("KeyS");
-                            if (r===3) this.NPCdir.push("KeyD");
+                        for (let i = 0; i < 5; i++) {
+                            const r = Math.floor(Math.random() * 4);
+                            if (r === 0) this.NPCdir.push("KeyW");
+                            if (r === 1) this.NPCdir.push("KeyA");
+                            if (r === 2) this.NPCdir.push("KeyS");
+                            if (r === 3) this.NPCdir.push("KeyD");
                         }
                     } else {
                         this.keyNPC();
@@ -211,14 +245,27 @@
             },
             keyOut() {
                 this.player.Key(null);
-                for (let i=0; i<5; i++) {
+                for (let i = 0; i < 5; i++) {
                     this.NPC[i].Key(null);
                 }
                 this.pressed = false;
             },
             keyNPC() {
-                for (let i=0; i<5; i++) {
+                for (let i = 0; i < 5; i++) {
                     this.NPC[i].Key(this.NPCdir[i]);
+                }
+            },
+            mouseClick(e) {
+                if (e.offsetX || e.layerX) {
+                    let x = e.offsetX === undefined ? e.layerX : e.offsetX;
+                    let y = e.offsetY === undefined ? e.layerY : e.offsetY;
+                    x /= this.length;
+                    y /= this.length;
+                    for (let i=0; i<5; i++) {
+                        if (Math.sqrt(Math.pow(this.NPC[i].x-x, 2) + Math.pow(this.NPC[i].y-y,2)) < 0.04) {
+                            this.NPC[i].Del();
+                        }
+                    }
                 }
             }
         }
