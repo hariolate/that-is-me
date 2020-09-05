@@ -10,6 +10,7 @@ ENTRYPOINT CompileDaemon \
                         -color=true \
                         -exclude-dir="./tools/dev/db_data" \
                         -exclude-dir="./static" \
+                        -exclude-dir="./node_modules" \
                         -pattern="(.+\.go|.+\.proto|.+\.vue)$" \
                         -build="./tools/build.sh" \
                         -command="./bin/app-Linux -config tools/dev/config.json"
