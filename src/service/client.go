@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 	"gtihub.com/hariolate/that-is-me/src/protocol"
@@ -26,12 +27,12 @@ type client struct {
 }
 
 func (c *client) sendMessage(t protocol.Wrapper_MessageType, m proto.Message) {
-	log.Printf("client %d: to send: %+v", c.id, m)
+	log.Printf("client %d: to send: %+v", c.id, spew.Sdump(m))
 	wrappedMessage := &protocol.Wrapper{
 		Type:    t,
 		Message: MustMarshalProto(m),
 	}
-	log.Printf("client %d: to send wrapped: %+v", c.id, m)
+	log.Printf("client %d: to send wrapped: %s", c.id, spew.Sdump(wrappedMessage))
 	c.toSendChan <- wrappedMessage
 }
 
@@ -117,7 +118,7 @@ func (c *client) sendWorker() {
 			NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
 			NoError(c.conn.WriteMessage(websocket.PingMessage, nil))
 		case toSend := <-c.toSendChan:
-			log.Printf("client %d: actually send %+v", c.id, toSend)
+			log.Printf("client %d: actually send %s", c.id, spew.Sdump(toSend))
 			data, err := proto.Marshal(toSend)
 			NoError(err)
 			NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
