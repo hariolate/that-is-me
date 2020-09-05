@@ -56,8 +56,8 @@ func MustMarshalProto(obj proto.Message) []byte {
 	return data
 }
 
-func MustUnmarshalProto(data []byte, o interface{}) {
-	NoError(proto.Unmarshal(data, o.(proto.Message)))
+func MustUnmarshalProto(data []byte, o proto.Message) {
+	NoError(proto.Unmarshal(data, o))
 }
 
 func MustMarshalAnyProto(msg proto.Message) *any.Any {
