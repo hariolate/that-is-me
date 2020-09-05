@@ -4,9 +4,10 @@
 That is me is an anonymous gaming social platform that pays tribute to Turing.
 
 ## Key Features
+* ~~**THREE PORNOGRAPHY BACKGROUND IMAGES**~~ 
 * **COMPLETELY** anonymous
-* Coop in limited time
-* Random Theme
+* Coop in **limited time**
+* Runtime-generated Random Themes
 * Limited time chatting as winners' reward
 * Reinforcement learning AI
 
@@ -42,7 +43,7 @@ docker pull hariolate/that-is-me:latest
     * Mentor - 谢函瀚 ([@xhhzuikeaiya](https://github.com/xhhzuikeaiya)) <br>
     * Mentor - 黄嘉杰 ([@huangjj979](https://github.com/huangjj979)) <br>
     * Lead Developer - 黄扬 ([@huang825172](https://github.com/huang825172)) <br>
-    * USELESS BRAINLESS Coder - 方泓睿 ([@chfanghr](https://github.com/chfanghr)) <br>
+    * USELESS BRAINLESS TRASH - 方泓睿 ([@chfanghr](https://github.com/chfanghr)) <br>
 * For third party credits, See [CREDITS.md](CREDITS.md)
 
 ## License
