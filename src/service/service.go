@@ -3,10 +3,9 @@ package service
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"gtihub.com/gin-websocket/src/protocol"
+	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"log"
 	"net/http"
 	"sync/atomic"
@@ -112,9 +111,9 @@ func (s *Service) onReceiveNewMessage(c *client, m *protocol.Wrapper) {
 	}
 }
 
-func (s *Service) handleMatchMakingRequest(a *client, any *any.Any) {
+func (s *Service) handleMatchMakingRequest(a *client, any []byte) {
 	var matchMakingRequest protocol.MatchMakingRequest
-	MustUnmarshalAnyProto(any, &matchMakingRequest)
+	MustUnmarshalProto(any, &matchMakingRequest)
 	requestType := matchMakingRequest.Type
 	log.Printf("client %d: match making request: %s", a.id, matchMakingRequest.Type)
 	switch requestType {

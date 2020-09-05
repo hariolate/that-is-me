@@ -44,6 +44,26 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
       }
     }
   },
+  google: {
+    nested: {
+      protobuf: {
+        nested: {
+          Timestamp: {
+            fields: {
+              seconds: {
+                type: "int64",
+                id: 1
+              },
+              nanos: {
+                type: "int32",
+                id: 2
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   Position: {
     fields: {
       x: {
@@ -209,7 +229,7 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
         id: 1
       },
       message: {
-        type: "google.protobuf.Any",
+        type: "bytes",
         id: 2
       }
     },
@@ -228,38 +248,6 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           GameResultEvent: 9,
           RawChatMessageEvent: 10,
           NewMessageEvent: 11
-        }
-      }
-    }
-  },
-  google: {
-    nested: {
-      protobuf: {
-        nested: {
-          Timestamp: {
-            fields: {
-              seconds: {
-                type: "int64",
-                id: 1
-              },
-              nanos: {
-                type: "int32",
-                id: 2
-              }
-            }
-          },
-          Any: {
-            fields: {
-              type_url: {
-                type: "string",
-                id: 1
-              },
-              value: {
-                type: "bytes",
-                id: 2
-              }
-            }
-          }
         }
       }
     }

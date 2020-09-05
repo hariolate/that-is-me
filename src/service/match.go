@@ -1,11 +1,10 @@
 package service
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"gtihub.com/gin-websocket/src/fsm"
-	"gtihub.com/gin-websocket/src/protocol"
+	"google.golang.org/protobuf/proto"
+	"gtihub.com/hariolate/that-is-me/src/fsm"
+	"gtihub.com/hariolate/that-is-me/src/protocol"
 	"math/rand"
 	"time"
 )
@@ -227,13 +226,13 @@ func (m *match) sendMatchStateChangeEventToAB(msg proto.Message) {
 	m.b.sendMessage(protocol.Wrapper_MatchStateChangeEvent, msg)
 }
 
-func (m *match) handleMatchEvents(a *client, t protocol.Wrapper_MessageType, any *any.Any) {
+func (m *match) handleMatchEvents(a *client, t protocol.Wrapper_MessageType, any []byte) {
 	switch t {
 	case protocol.Wrapper_ClientReadyEvent:
 		m.handleClientReadyEvent(a)
 	case protocol.Wrapper_UserAKillEvent:
 		var e protocol.UserAKillEvent
-		MustUnmarshalAnyProto(any, &e)
+		MustUnmarshalProto(any, &e)
 		m.handleUserAKillEvent(&e)
 
 	}

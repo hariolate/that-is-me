@@ -2,8 +2,6 @@ syntax = "proto3";
 
 option go_package = ".;protocol";
 
-import "google/protobuf/any.proto";
-
 message Wrapper{
   enum MessageType{
     MatchMakingRequest = 0;
@@ -20,5 +18,6 @@ message Wrapper{
     NewMessageEvent = 11;
   }
   MessageType type = 1;
-  google.protobuf.Any message = 2;
+  //  google.protobuf.Any message = 2;
+  bytes message = 2;
 }
