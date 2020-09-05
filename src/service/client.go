@@ -70,7 +70,8 @@ func (c *client) receiveWorker() {
 		select {
 		case rm := <-readMessageChan:
 			NoError(rm.err)
-			go c.srv.onReceiveNewMessage(c, c.handleReceivedMessage(rm.p))
+			c.srv.onReceiveNewMessage(c, c.handleReceivedMessage(rm.p))
+			log.Printf("client %d: message receive", c.id)
 		case <-c.c.Done():
 			return
 		}
@@ -80,6 +81,7 @@ func (c *client) receiveWorker() {
 func (c *client) handleReceivedMessage(data []byte) *protocol.Wrapper {
 	var wrappedMessage protocol.Wrapper
 	NoError(proto.Unmarshal(data, &wrappedMessage))
+	log.Panicf("wrapped message: %s", wrappedMessage.String())
 	return &wrappedMessage
 }
 
@@ -95,6 +97,7 @@ func (c *client) sendWorker() {
 	}()
 
 	c.conn.SetPongHandler(func(string) error {
+		log.Printf("client %d: receive pong", c.id)
 		if c.firstPong {
 			c.firstPong = false
 		}
@@ -108,9 +111,11 @@ func (c *client) sendWorker() {
 	for {
 		select {
 		case <-ticker.C:
+			log.Printf("client %d: send ping", c.id)
 			NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))
 			NoError(c.conn.WriteMessage(websocket.PingMessage, nil))
 		case toSend := <-c.toSendChan:
+			log.Printf("client %d: send %s", c.id, toSend.String())
 			data, err := proto.Marshal(toSend)
 			NoError(err)
 			NoError(c.conn.SetWriteDeadline(time.Now().Add(writeWait)))

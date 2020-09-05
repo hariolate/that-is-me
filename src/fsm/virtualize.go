@@ -52,7 +52,7 @@ func (m MermaidVisualizer) Visualize(machine FSM) ([]byte, error) {
 
 	for _, key := range sortedEKeys {
 		val := fsm.transitions[key]
-		buffer.WriteString(fmt.Sprintf("	%s -->| %s| %s\n", key.src, key.event, val))
+		buffer.WriteString(fmt.Sprintf("	_%s_-->|_%s_|_%s_\n", key.src, key.event, val))
 	}
 
 	return buffer.Bytes(), nil
@@ -83,7 +83,7 @@ func (g GraphvizVisualizer) Visualize(machine FSM) ([]byte, error) {
 		if key.src == fsm.current {
 			states[key.src]++
 			states[val]++
-			buffer.WriteString(fmt.Sprintf(" \"%s\" -> \"%s\" [ label = \"%s\" ];\n", key.src, val, key.event))
+			buffer.WriteString(fmt.Sprintf("\"_%s_\"->\"_%s+\"[label=\"_%s_\"];\n", key.src, val, key.event))
 		}
 	}
 
@@ -98,7 +98,7 @@ func (g GraphvizVisualizer) Visualize(machine FSM) ([]byte, error) {
 	sort.Strings(sortedStateKeys)
 
 	for _, key := range sortedStateKeys {
-		buffer.WriteString(fmt.Sprintf("	\"%s\";\n", key))
+		buffer.WriteString(fmt.Sprintf("\"_%s_\";\n", key))
 	}
 
 	buffer.WriteString("}\n")
