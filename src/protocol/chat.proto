@@ -4,18 +4,17 @@ option go_package = ".;protocol";
 
 import "google/protobuf/timestamp.proto";
 
-message RawMessage{
+message RawChatMessageEvent{
   string message = 1;
 }
 
-message Message{
+message NewMessageEvent{
   enum Sender{
     A = 0;
     B = 1;
   }
-  uint32 uid = 1;
   Sender sender = 2;
-  RawMessage raw = 3;
+  RawChatMessageEvent raw = 3;
   google.protobuf.Timestamp timestamp = 4;
-  google.protobuf.Timestamp time_remaining = 5;
+  int64 time_remaining = 5;
 }

@@ -33,6 +33,8 @@ func New(initial string, events []EventDesc, callbacks map[string]Callback) FSM 
 	machine := &fsm{
 		current:      initial,
 		transitioner: new(transitionerImpl),
+		transitions:  make(map[eKey]string),
+		callbacks:    make(map[cKey]Callback),
 	}
 
 	allEvents, allStates := make(map[string]struct{}), make(map[string]struct{})
