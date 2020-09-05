@@ -28,7 +28,7 @@
         name: "Home",
         data() {
             return {
-                logoImg: common.logoImgSrc,
+                logoImg: common.logoStatic,
                 receive: "",
             }
         },
